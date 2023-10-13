@@ -1,0 +1,4 @@
+Syrent
+sayandevelopment.ir
+https://github.com/Syrent/SayanVanish
+main,CLASS,ir.syrent.velocityvanish.sayanvanish.SayanVanish,net.fabricmc.api.ModInitializer;client,CLASS,ir.syrent.velocityvanish.sayanvanish.client.SayanVanishClient,net.fabricmc.api.ClientModInitializer
