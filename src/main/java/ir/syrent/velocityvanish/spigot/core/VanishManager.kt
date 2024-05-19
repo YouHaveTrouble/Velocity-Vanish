@@ -112,7 +112,7 @@ class VanishManager(
     }
 
     fun addPotionEffects(player: Player) {
-        Ruom.runSync({
+        Ruom.runOnEntity({
             for (potionEffect in potions) {
                 if (player.hasPotionEffect(potionEffect.type)) continue
                 try {
@@ -129,7 +129,7 @@ class VanishManager(
                     player.addPotionEffect(potionEffect)
                 }
             }
-        }, 2)
+        }, player, 2)
     }
 
     fun removePotionEffects(player: Player) {

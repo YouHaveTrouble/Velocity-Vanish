@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.Server
 import org.bukkit.command.ConsoleCommandSender
+import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
@@ -113,6 +114,14 @@ object Ruom {
             }, delay)
         } else {
             Bukkit.getScheduler().runTaskLater(plugin, runnable, delay)
+        }
+    }
+
+    fun runOnEntity(runnable: Runnable, entity: Entity, delay: Long) {
+        if (isFolia) {
+            entity.scheduler.runDelayed(plugin, { runnable.run() }, null, delay)
+        } else {
+            Bukkit.getScheduler().runTask(plugin, runnable)
         }
     }
 
