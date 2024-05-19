@@ -26,6 +26,7 @@ import ir.syrent.velocityvanish.spigot.utils.Utils
 import ir.syrent.velocityvanish.spigot.utils.sendMessage
 import ir.syrent.velocityvanish.utils.TextReplacement
 import ir.syrent.velocityvanish.utils.component
+import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Creature
 import org.bukkit.entity.Player
@@ -43,13 +44,13 @@ class VanishManager(
     val flyingPlayers = mutableListOf<UUID>()
 
     private val potions = mutableSetOf(
-        PotionEffect(PotionEffectType.NIGHT_VISION, Int.MAX_VALUE, 235, false, false),
-        PotionEffect(PotionEffectType.FIRE_RESISTANCE, Int.MAX_VALUE, 235, false, false),
-        PotionEffect(PotionEffectType.INVISIBILITY, Int.MAX_VALUE, 235, false, false),
+        PotionEffect(PotionEffectType.NIGHT_VISION, if (ServerVersion.supports(20)) -1 else Int.MAX_VALUE, 235, false, false),
+        PotionEffect(PotionEffectType.FIRE_RESISTANCE, if (ServerVersion.supports(20)) -1 else Int.MAX_VALUE, 235, false, false),
+        PotionEffect(PotionEffectType.INVISIBILITY, if (ServerVersion.supports(20)) -1 else Int.MAX_VALUE, 235, false, false),
     )
 
     init {
-        if (ServerVersion.supports(13)) potions.add(PotionEffect(PotionEffectType.WATER_BREATHING, Int.MAX_VALUE, 235, false, false))
+        if (ServerVersion.supports(13)) potions.add(PotionEffect(PotionEffectType.WATER_BREATHING, if (ServerVersion.supports(20)) -1 else Int.MAX_VALUE, 235, false, false))
     }
 
     val invulnerablePlayers = mutableSetOf<UUID>()
@@ -148,6 +149,9 @@ class VanishManager(
     }
 
     fun denyPush(player: Player) {
+        if (Ruom.isFolia) {
+            return; // scoreborad api is not available in folia
+        }
         var team = player.scoreboard.getTeam("Vanished")
         if (team == null) {
             team = player.scoreboard.registerNewTeam("Vanished")
@@ -157,6 +161,9 @@ class VanishManager(
     }
 
     fun allowPush(player: Player) {
+        if (Ruom.isFolia) {
+            return; // scoreborad api is not available in folia
+        }
         player.scoreboard.getTeam("Vanished")?.removeEntry(player.name)
     }
 
@@ -202,15 +209,17 @@ class VanishManager(
         } catch (_: NoSuchMethodError) { }
 
         if (Ruom.isFolia) {
-            player.world.entities
-                .filterIsInstance<Creature>()
-                .forEach { creature ->
-                    creature.scheduler.run(Ruom.plugin, {
-                        if (creature.target?.uniqueId == player.uniqueId) {
-                            creature.target = null
+            player.world.loadedChunks.forEach { chunk ->
+                Bukkit.getRegionScheduler().execute(plugin, chunk.world, chunk.x, chunk.z) {
+                    chunk.entities.forEach { entity ->
+                        if (entity is Creature) {
+                            if (entity.target?.uniqueId == player.uniqueId) {
+                                entity.target = null
+                            }
                         }
-                    }, {})
+                    }
                 }
+            }
         } else {
             player.world.entities.stream()
                 .filter { entity -> entity is Creature }
