@@ -109,6 +109,7 @@ dependencies {
     compileOnly("io.netty:netty-all:4.1.104.Final")
     compileOnly("net.william278:velocitab:1.5.2")
     compileOnly("us.dynmap:DynmapCoreAPI:3.7-SNAPSHOT")
+    compileOnly("commons-io:commons-io:2.16.1")
     // SayanChat 2.8.1
     // ProCosmetics
     // ServerListPlus Velocity (From extradeps)
